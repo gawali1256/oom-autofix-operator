@@ -32,6 +32,13 @@ Helm chart for the **OOM AutoFix Operator**: a [Kopf](https://kopf.readthedocs.i
 - Kubernetes **1.24+**
 - Helm **3.x**
 
+The Helm chart lives under **`charts/oom-autofix-operator/`**, not the repo root. From the repository root, use that path (or `cd` there) for `helm lint` / `helm package`:
+
+```bash
+helm lint charts/oom-autofix-operator
+helm package charts/oom-autofix-operator
+```
+
 ## Install
 
 ```bash
