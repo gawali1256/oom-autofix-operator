@@ -1,0 +1,46 @@
+# Default values for oom-autofix-operator.
+
+replicaCount: 1
+
+image:
+  repository: python
+  tag: "3.12-slim"
+  pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+# Target memory = min(floor(current_limit_Mi * scaleFactor), maxMemoryGi * 1024)
+scaleFactor: 2.25
+maxMemoryGi: 2
+containerName: "app"
+logLevel: 8
+
+# Optional: reserved for future metrics integration (exposed as env PROMETHEUS_URL)
+prometheusUrl: ""
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+# Install a demo Deployment that OOMs under 400Mi (stress test)
+testStress:
+  enabled: true
+  image:
+    repository: polinux/stress
+    tag: latest
+    pullPolicy: IfNotPresent

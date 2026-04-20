@@ -1,0 +1,39 @@
+{{- if .Values.testStress.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "oom-autofix-operator.fullname" . }}-stress
+  labels:
+    {{- include "oom-autofix-operator.labels" . | nindent 4 }}
+    app.kubernetes.io/component: stress-test
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: stress-test
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: stress-test
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: {{ .Values.containerName }}
+          image: "{{ .Values.testStress.image.repository }}:{{ .Values.testStress.image.tag }}"
+          imagePullPolicy: {{ .Values.testStress.image.pullPolicy }}
+          resources:
+            limits:
+              memory: 400Mi
+            requests:
+              memory: 128Mi
+          command:
+            - stress
+          args:
+            - --vm
+            - "1"
+            - --vm-bytes
+            - 500M
+            - --vm-hang
+            - "0"
+{{- end }}

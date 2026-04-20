@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "oom-autofix-operator.fullname" . }}
+  labels:
+    {{- include "oom-autofix-operator.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "oom-autofix-operator.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "oom-autofix-operator.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "oom-autofix-operator.serviceAccountName" . }}
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        fsGroup: 65534
+      containers:
+        - name: operator
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - /bin/sh
+            - -c
+            - |
+              set -e
+              pip install --no-cache-dir --target /opt/deps "kopf>=1.36,<2" "kubernetes>=28,<33" >/tmp/pip.log 2>&1
+              export PYTHONPATH="/opt/deps"
+              exec kopf run /operator.py -v
+          env:
+            - name: SCALE_FACTOR
+              value: {{ .Values.scaleFactor | quote }}
+            - name: MAX_MEMORY_GI
+              value: {{ .Values.maxMemoryGi | quote }}
+            - name: CONTAINER_NAME
+              value: {{ .Values.containerName | quote }}
+            - name: LOG_LEVEL
+              value: {{ .Values.logLevel | quote }}
+            {{- if .Values.prometheusUrl }}
+            - name: PROMETHEUS_URL
+              value: {{ .Values.prometheusUrl | quote }}
+            {{- end }}
+          volumeMounts:
+            - name: operator-deps
+              mountPath: /opt/deps
+            - name: operator-script
+              mountPath: /operator.py
+              subPath: operator.py
+              readOnly: true
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      volumes:
+        - name: operator-deps
+          emptyDir: {}
+        - name: operator-script
+          configMap:
+            name: {{ include "oom-autofix-operator.fullname" . }}-operator-script
+            defaultMode: 0444
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
