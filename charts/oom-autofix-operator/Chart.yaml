@@ -2,8 +2,8 @@ apiVersion: v2
 name: oom-autofix-operator
 description: Auto-detects OOMKilled pods and patches Deployment memory limits from 400Mi → 900Mi
 type: application
-version: 0.1.2
-appVersion: "0.1.2"
+version: 0.1.3
+appVersion: "0.1.3"
 kubeVersion: ">=1.24.0-0"
 home: https://github.com/sanket-gawali/oom-autofix-operator
 icon: https://artifacthub.io/static/media/placeholder_pkg_helm.png

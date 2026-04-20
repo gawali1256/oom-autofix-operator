@@ -34,6 +34,7 @@ spec:
               set -e
               pip install --no-cache-dir --target /opt/deps "kopf>=1.36,<2" "kubernetes>=28,<33" >/tmp/pip.log 2>&1
               export PYTHONPATH="/opt/deps"
+              export PATH="/opt/deps/bin:${PATH}"
               exec kopf run /operator.py -v
           env:
             - name: SCALE_FACTOR
