@@ -1,0 +1,3 @@
+# Chart Releaser — https://github.com/helm/chart-releaser
+# After CI runs, users add: helm repo add oom-autofix https://<user>.github.io/<repo>/
+pages-branch: gh-pages
