@@ -6,19 +6,21 @@
 
 ```text
 oom-autofix-operator/
-├── Chart.yaml
 ├── README.md
-├── values.yaml
-├── .helmignore
-├── files/
-│   └── operator.py          # Source for ConfigMap data key operator.py
-└── templates/
-    ├── _helpers.tpl
-    ├── configmap.yaml
-    ├── deployment.yaml
-    ├── rbac.yaml
-    ├── serviceaccount.yaml
-    └── test-stress.yaml
+└── charts/
+    └── oom-autofix-operator/
+        ├── Chart.yaml
+        ├── values.yaml
+        ├── .helmignore
+        ├── files/
+        │   └── operator.py    # Source for ConfigMap data key operator.py
+        └── templates/
+            ├── _helpers.tpl
+            ├── configmap.yaml
+            ├── deployment.yaml
+            ├── rbac.yaml
+            ├── serviceaccount.yaml
+            └── test-stress.yaml
 ```
 
 Helm chart for the **OOM AutoFix Operator**: a [Kopf](https://kopf.readthedocs.io/)-based Python controller that watches Pods for `OOMKilled` terminations and raises the owning Deployment’s memory limit (for example **400Mi → 900Mi** using the default `scaleFactor` of **2.25**).
@@ -33,14 +35,14 @@ Helm chart for the **OOM AutoFix Operator**: a [Kopf](https://kopf.readthedocs.i
 ## Install
 
 ```bash
-helm upgrade --install oom-autofix ./oom-autofix-operator \
+helm upgrade --install oom-autofix ./charts/oom-autofix-operator \
   --namespace oom-autofix --create-namespace
 ```
 
 ### Optional: Prometheus URL (reserved)
 
 ```bash
-helm upgrade --install oom-autofix ./oom-autofix-operator \
+helm upgrade --install oom-autofix ./charts/oom-autofix-operator \
   --namespace oom-autofix --create-namespace \
   --set prometheusUrl=http://prometheus-kube-prometheus-prometheus.monitoring:9090
 ```
@@ -80,7 +82,7 @@ See `values.yaml` for image, resources, and scheduling options.
 5. Disable the bundled stress test when you no longer need it:
 
    ```bash
-   helm upgrade oom-autofix ./oom-autofix-operator --set testStress.enabled=false
+   helm upgrade oom-autofix ./charts/oom-autofix-operator --set testStress.enabled=false
    ```
 
 ## Screenshots (Artifact Hub / docs)

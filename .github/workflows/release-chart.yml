@@ -1,20 +1,16 @@
 name: Release Helm Chart
 
 on:
-  workflow_dispatch: # run manually: Actions → Release Helm Chart → Run workflow
+  workflow_dispatch: # Actions → Release Helm Chart → Run workflow
   push:
     branches: [main]
     paths:
-      - "Chart.yaml"
-      - "values.yaml"
-      - "templates/**"
-      - "files/**"
+      - "charts/**"
       - ".cr.yaml"
+      - ".github/workflows/release-chart.yml"
 
 permissions:
-  contents: write
-  pages: write
-  id-token: write
+  contents: write # releases + push to gh-pages
 
 jobs:
   release:
@@ -28,15 +24,21 @@ jobs:
       - name: Set up Helm
         uses: azure/setup-helm@v4
 
+      - name: Lint chart
+        run: helm lint charts/oom-autofix-operator
+
       - name: Configure Git
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
+      # Publishes .tgz + index.yaml to gh-pages (and GitHub Releases).
+      # https://github.com/helm/chart-releaser-action
       - name: Run chart-releaser
-        uses: helm/chart-releaser-action@v1.6.0
+        uses: helm/chart-releaser-action@v1.7.0
         env:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
         with:
-          charts_dir: .          # chart root IS the repo root
+          charts_dir: charts
           config: .cr.yaml
+          pages_branch: gh-pages
