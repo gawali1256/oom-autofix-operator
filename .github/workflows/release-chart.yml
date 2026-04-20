@@ -1,6 +1,7 @@
 name: Release Helm Chart
 
 on:
+  workflow_dispatch: # run manually: Actions → Release Helm Chart → Run workflow
   push:
     branches: [main]
     paths:
@@ -8,6 +9,7 @@ on:
       - "values.yaml"
       - "templates/**"
       - "files/**"
+      - ".cr.yaml"
 
 permissions:
   contents: write
